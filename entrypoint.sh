@@ -6,9 +6,10 @@ echo "Waiting for PostgreSQL to be ready..."
 # Extract host and port from DATABASE_URL
 DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\).*/\1/p')
 DB_PORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
+DB_USER=$(echo $DATABASE_URL | sed -n 's/.*\/\/\([^:]*\).*/\1/p')
 
 # Wait for PostgreSQL to be ready
-until pg_isready -h $DB_HOST -p $DB_PORT -U admin; do
+until pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER; do
   echo "PostgreSQL is unavailable - sleeping"
   sleep 1
 done
