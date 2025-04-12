@@ -21,9 +21,6 @@ COPY internal/db/migrations /app/migrations
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# Install AWS CLI for secrets management
-RUN apk add --no-cache aws-cli jq
-
 EXPOSE 8080
 
 ENTRYPOINT ["/app/entrypoint.sh"]
