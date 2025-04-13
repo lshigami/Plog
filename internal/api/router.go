@@ -29,7 +29,7 @@ func SetupRouter(store sqlc.Querier, cfg config.Config) *gin.Engine {
 
 	// --- CORS Configuration ---
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:3000", cfg.ClientOrigin} // Điều chỉnh nếu cần
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"} // Điều chỉnh nếu cần
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	corsConfig.AllowCredentials = true
