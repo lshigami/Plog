@@ -60,6 +60,7 @@ func SetupRouter(store sqlc.Querier, cfg config.Config) *gin.Engine {
 			// authRoutes.DELETE("/posts/:id", server.DeletePost) // Nếu có
 		}
 	}
+	//docker pull public.ecr.aws/r8o3t2l0/go/plog:6f985261517feced3e770b422eb7204707542703
 
 	// --- Static Frontend Files Serving ---
 	// Serve static files from the React build directory
