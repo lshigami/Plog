@@ -11,7 +11,7 @@ function PostDetail() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/posts/${id}`);
+        const response = await axios.get(`http://localhost:8080/api/v1/posts/${id}`);
         setPost(response.data);
       } catch (error) {
         setError('Không thể tải bài viết');

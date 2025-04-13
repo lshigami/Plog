@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -19,17 +18,17 @@ import (
 const (
 	staticRootPath  = "/app/static" // Thư mục static trong container
 	staticIndexFile = "index.html"
-	// staticAssetsPath = "/app/static/assets" // Ví dụ
-	// urlAssetsPrefix  = "/assets"          // Ví dụ
 )
 
 func SetupRouter(store sqlc.Querier, cfg config.Config) *gin.Engine {
+	// Use ReleaseMode for production
+	// gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
 
 	// --- CORS Configuration ---
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:3000"} // Điều chỉnh nếu cần
+	corsConfig.AllowOrigins = []string{"http://localhost:3000", "*"} // Allow all origins for testing
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	corsConfig.AllowCredentials = true
@@ -66,42 +65,29 @@ func SetupRouter(store sqlc.Querier, cfg config.Config) *gin.Engine {
 	}
 
 	// --- Static Frontend Files Serving ---
-
-	// 1. Phục vụ các thư mục assets (CSS, JS, etc.)
-	//    Đảm bảo đường dẫn nguồn (http.Dir) khớp với vị trí trong container
-	router.StaticFS("/static", http.Dir(filepath.Join(staticRootPath, "static"))) // Ví dụ: /app/static/static
-	router.StaticFS("/assets", http.Dir(filepath.Join(staticRootPath, "assets"))) // Ví dụ: /app/static/assets (Nếu có)
-	// Thêm các thư mục static khác nếu cần
-
-	// 2. *** THAY ĐỔI QUAN TRỌNG: Xử lý route gốc ("/") một cách tường minh ***
-	//    Thay vì dùng StaticFileFS, dùng GET handler
-	// router.StaticFileFS("/", filepath.Join(staticRootPath, staticIndexFile), http.Dir(staticRootPath)) // <<< XÓA DÒNG NÀY
-	router.GET("/", func(c *gin.Context) {
-		// Tạo một filesystem ảo gốc tại staticRootPath
-		fs := http.Dir(staticRootPath)
-		// Phục vụ file index.html từ gốc của filesystem đó
-		c.FileFromFS(staticIndexFile, fs)
-	})
+	// Serve static files from the React build directory
+	router.StaticFile("/", filepath.Join(staticRootPath, "index.html"))
+	router.Static("/static", filepath.Join(staticRootPath, "static"))
+	
+	// Serve other static assets that might be at the root level
+	router.StaticFile("/favicon.ico", filepath.Join(staticRootPath, "favicon.ico"))
+	router.StaticFile("/manifest.json", filepath.Join(staticRootPath, "manifest.json"))
+	router.StaticFile("/asset-manifest.json", filepath.Join(staticRootPath, "asset-manifest.json"))
 
 	// --- SPA Catch-all Route ---
-	// Logic này giữ nguyên, nó sẽ không được gọi cho "/" nữa vì đã có handler GET ở trên
+	// Handle all other routes for the SPA
 	router.NoRoute(func(c *gin.Context) {
 		if c.Request.Method == http.MethodGet &&
 			!strings.HasPrefix(c.Request.URL.Path, "/api/") &&
 			!strings.HasPrefix(c.Request.URL.Path, "/static/") &&
-			!strings.HasPrefix(c.Request.URL.Path, "/assets/") && // Thêm kiểm tra này nếu dùng /assets
 			!strings.HasPrefix(c.Request.URL.Path, "/swagger/") {
 
-			// Kiểm tra file có tồn tại vật lý không trước khi trả về index.html
-			filePath := filepath.Join(staticRootPath, filepath.Clean(c.Request.URL.Path))
-			if _, err := os.Stat(filePath); os.IsNotExist(err) {
-				c.FileFromFS(staticIndexFile, http.Dir(staticRootPath)) // Trả về index.html
-				return
-			}
-			// Nếu file tồn tại nhưng không được serve bởi StaticFS, để Gin xử lý 404
+			// Always serve index.html for client-side routing
+			c.File(filepath.Join(staticRootPath, "index.html"))
+			return
 		}
-		// Trả về 404 cho các trường hợp khác
-		// c.JSON(http.StatusNotFound, HTTPError{Error: "Resource not found"}) // Hoặc 404 mặc định của Gin
+		// Return 404 for API routes or other non-SPA routes
+		c.JSON(http.StatusNotFound, gin.H{"error": "Resource not found"})
 	})
 
 	return router
