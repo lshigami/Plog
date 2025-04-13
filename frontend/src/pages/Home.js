@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { getPosts } from '../services/api';
 
 function Home() {
   const [posts, setPosts] = useState([]);
@@ -9,7 +9,7 @@ function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/v1/posts');
+        const response = await getPosts();
         setPosts(response.data);
       } catch (error) {
         console.error('Error fetching posts:', error);

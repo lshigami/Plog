@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import { getPost } from '../services/api';
 
 function PostDetail() {
   const { id } = useParams();
@@ -11,7 +11,7 @@ function PostDetail() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/posts/${id}`);
+        const response = await getPost(id);
         setPost(response.data);
       } catch (error) {
         setError('Không thể tải bài viết');

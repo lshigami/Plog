@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { createPost } from '../services/api';
 
 function CreatePost() {
   const [title, setTitle] = useState('');
@@ -13,19 +13,7 @@ function CreatePost() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        'http://localhost:8080/api/v1/posts',
-        {
-          title,
-          content,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await createPost(title, content);
       navigate('/');
     } catch (error) {
       setError('Không thể tạo bài viết. Vui lòng thử lại sau.');

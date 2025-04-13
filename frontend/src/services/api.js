@@ -1,6 +1,15 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/v1';
+// Dynamically determine the API base URL based on the current environment
+const getBaseUrl = () => {
+  // In production, use the current domain (window.location.origin)
+  // In development, use localhost
+  return process.env.NODE_ENV === 'production'
+    ? `${window.location.origin}/api/v1`
+    : 'http://localhost:8080/api/v1';
+};
+
+const API_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: API_URL,
