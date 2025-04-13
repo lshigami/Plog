@@ -1,0 +1,18 @@
+node_modules/
+build/
+dist/
+.env
+.env.*.local
+.npmrc
+.yarn/
+.yarn-cache/
+.cache/
+.vite/
+coverage/
+*.log
+
+# Mac system files
+.DS_Store
+
+
+vendor/
