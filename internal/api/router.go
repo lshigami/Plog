@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	// Đảm bảo time được import nếu dùng trong CORS
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lshigami/Plog/docs"
@@ -21,8 +20,6 @@ const (
 )
 
 func SetupRouter(store sqlc.Querier, cfg config.Config) *gin.Engine {
-	// Use ReleaseMode for production
-	// gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
 
@@ -68,7 +65,7 @@ func SetupRouter(store sqlc.Querier, cfg config.Config) *gin.Engine {
 	// Serve static files from the React build directory
 	router.StaticFile("/", filepath.Join(staticRootPath, "index.html"))
 	router.Static("/static", filepath.Join(staticRootPath, "static"))
-	
+
 	// Serve other static assets that might be at the root level
 	router.StaticFile("/favicon.ico", filepath.Join(staticRootPath, "favicon.ico"))
 	router.StaticFile("/manifest.json", filepath.Join(staticRootPath, "manifest.json"))
@@ -92,5 +89,3 @@ func SetupRouter(store sqlc.Querier, cfg config.Config) *gin.Engine {
 
 	return router
 }
-
-// ... (Phần còn lại của code: các struct, hàm handler, middleware...)
